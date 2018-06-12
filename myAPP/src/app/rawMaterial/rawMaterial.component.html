@@ -1,0 +1,217 @@
+<div class="row">
+    <div class="col-md-12 custom-tabs dashboard-tabs-wrapper">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#silver" aria-controls="home" role="tab" data-toggle="tab">Silver</a>
+            </li>
+            <li role="presentation">
+                <a href="#gold" aria-controls="profile" role="tab" data-toggle="tab">Gold</a>
+            </li>
+        </ul>
+        <br>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="silver">
+              <div class="row">
+            <form [formGroup]="complexForm" (ngSubmit)="addRawSilver(complexForm.value)">
+                <div class="form-group col-md-4" [ngClass]="{'has-error':!complexForm.controls['kachiNo'].valid && complexForm.controls['kachiNo'].touched}">
+                  <label for="name">kachi No.</label>
+                  <input type="text" class="form-control input-sm" [formControl]="complexForm.controls['kachiNo']" placeholder="kachi no.">
+                  <div *ngIf="complexForm.controls['kachiNo'].hasError('required') && complexForm.controls['kachiNo'].touched" class="alert alert-danger">You must include a first name.</div>
+                  <div *ngIf="complexForm.controls['kachiNo'].hasError('pattern')" class="alert alert-danger">special character not allowed</div>
+                </div>
+                <div class="form-group col-md-4" [ngClass]="{'has-error':!complexForm.controls['weightInGram'].valid && complexForm.controls['weightInGram'].touched}">
+                  <label for="weight">Weight</label>
+                  <input type="text" class="form-control input-sm" [formControl]="complexForm.controls['weightInGram']" placeholder="weight in gram">
+                  <div *ngIf="complexForm.controls['weightInGram'].hasError('required') && complexForm.controls['weightInGram'].touched" class="alert alert-danger">You must include a first name.</div>
+                  <div *ngIf="complexForm.controls['weightInGram'].hasError('pattern')" class="alert alert-danger">number allowed</div>
+                </div>
+                <div class="form-group col-md-3" [ngClass]="{'has-error':!complexForm.controls['purity'].valid && complexForm.controls['purity'].touched}">
+                  <label for="silver">purity</label>
+                  <input type="text" class="form-control input-sm" [formControl]="complexForm.controls['purity']" placeholder="purity">
+                  <div *ngIf="complexForm.controls['purity'].hasError('required') && complexForm.controls['purity'].touched" class="alert alert-danger">You must include a first name.</div>
+                  <div *ngIf="complexForm.controls['purity'].hasError('pattern')" class="alert alert-danger">Only numeric value less then 100</div>
+                </div>
+                <div class="form-group col-md-1">
+                  <button type="submit" class="btn btn-primary btn-sm" [disabled]="!complexForm.valid" style="margin-top: 24px;">Add</button>
+                </div>
+              </form>
+              </div>
+              <br>
+              <div class="row" id="rawMaterialTable">
+                <div class="col-md-9">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="10%"><p>Sl.No.</p></th>
+                        <th width="15%"><p>Kachi no.</p></th>
+                        <th width="20%"><p>Weight&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></p></th>
+                        <th width="20%"><p>Purity&nbsp;<span style="font-size: 11px;color: gray;">(after deduction)</span></p></th>
+                        <th width="25%"><p>Silver&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></p></th>
+                        <th width="10%"><p>Action</p></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor = 'let item of rawMaterial | paginate:{ id:"server", itemsPerPage: itemPerPage, currentPage: p, totalItems: total }; let i = index'>
+                        <td width="10%">{{i+(1+(p-1)*itemPerPage)}}</td>
+                        <td width="15%">{{item.kachiNo}}</td>
+                        <td width="20%" contenteditable='true' (input)="changeWeight($event, item._id)">{{item.weightInGram}}</td>
+                        <td width="20%">{{item.deductedPurity}}</td>
+                        <td width="25%">{{item.silverInGram}}</td>
+                        <td width="10%"><i class="fa fa-trash" (click)=delteRow(item._id) aria-hidden="true"></i></td>
+                      </tr>
+                      <tr *ngIf = '!rawMaterial ||rawMaterial.length==0'>
+                        <td colspan="6">No record found</td>
+                      </tr>
+                      <!-- <tr *ngIf = 'rawMaterial.length > 0'>
+                        <td colspan="2"><b>Total weight&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></b></td>
+                        <td>{{totalWeight}}</td>
+                        <td><b>Toal silver&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></b></td>
+                        <td>{{totalSilver}}</td>
+                      </tr> -->
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col-md-3">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label for="customerName">Customer Name</label>
+                      <input type="text" class="form-control input-sm" placeholder="customer name">
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:15px;">
+                    <div class="col-md-12">
+                      <label for="customerName">Mobile No.</label>
+                      <input type="text" class="form-control input-sm" placeholder="mobile no.">
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:15px;">
+                    <div class="col-md-12">
+                      <p>Total Raw Weight&nbsp;<span>{{totalWeight}}</span></p>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:15px;">
+                    <div class="col-md-12">
+                      <p>Total Silver Weight&nbsp;<span>{{totalWeight}}</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="row">
+                <div class="col-md-12">
+                  <p>Total Raw Weight<span>{{totalWeight}}</span></p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <p>Total Silver Weight<span>{{totalWeight}}</span></p>
+                </div>
+              </div> -->
+              <div class="row" >
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#customerModal">Print bill</button>
+                </div>
+                <div class="col-md-6">
+                  <div class="has-text-centered">
+                    <div class="spinner" [ngClass]="{ 'hidden': !loading }"></div>
+                    <pagination-controls (pageChange)="getPage($event)" id="server" autoHide="true"></pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="gold">
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="name">Gold No.</label>
+                  <input type="text" class="form-control" [(ngModel)] = "kachiNo" placeholder="kachi no.">
+                </div>
+                <div class="col-md-4">
+                  <label for="mobile">Weight</label>
+                  <input type="text" [(ngModel)] = "weightInGram" class="form-control" placeholder="weight in gram">
+                </div>
+                <div class="col-md-3">
+                  <label for="silver">purity</label>
+                  <input type="text" [(ngModel)] = "purity" class="form-control" placeholder="purity">
+                </div>
+                <div class="col-md-1">
+                  <button type="button" class="btn btn-primary" (click) = "addRawSilver()" style="margin-top: 24px;">Add</button>
+                </div>
+              </div>
+              <br>
+              <div class="row" id="rawMaterialTable">
+                <div class="col-md-12">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="10%"><p>Sl.No.</p></th>
+                        <th width="15%"><p>Kachi no.</p></th>
+                        <th width="20%"><p>Weight&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></p></th>
+                        <th width="20%"><p>Purity&nbsp;<span style="font-size: 11px;color: gray;">(after deduction)</span></p></th>
+                        <th width="25%"><p>Gold&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></p></th>
+                        <th width="10%"><p>Action</p></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor = 'let item of rawMaterial; let i = index'>
+                        <td width="10%">{{i+1}}</td>
+                        <td width="15%">{{item.kachiNo}}</td>
+                        <td width="20%" contenteditable='true' (input)="changeWeight($event, item._id)">{{item.weightInGram}}</td>
+                        <td width="20%">{{item.deductedPurity}}</td>
+                        <td width="25%">{{item.silverInGram}}</td>
+                        <td width="10%"><i class="fa fa-trash" (click)=delteRow(item._id) aria-hidden="true"></i></td>
+                      </tr>
+                      <!-- <tr *ngIf = '!rawMaterial ||rawMaterial.length==0'>
+                        <td colspan="6">No record found</td>
+                      </tr> -->
+                      <!-- <tr *ngIf = 'rawMaterial.length > 0'> -->
+                      <tr>
+                        <td colspan="2"><b>Total weight&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></b></td>
+                        <td>{{totalWeight}}</td>
+                        <td><b>Toal gold&nbsp;<span style="font-size: 11px;color: gray;">(in grams)</span></b></td>
+                        <td>{{totalSilver}}</td>
+                      </tr>
+                      <!-- <tr *ngIf = '(rawMaterial.length>0)&&(totalCash!== NaN)'>
+                        <td rowspan="2" colspan="3"><b>Total cash</b></td>
+                        <td >{{totalCash}}</td>
+                      </tr> -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-primary" (click)="convertCash()">Convert in cash</button>
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#customerModal">Print bill</button>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div id="customerModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-sm">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Customer invoice</h4>
+      </div>
+      <div class="modal-body">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" [(ngModel)] = "customerName" placeholder="customer name">
+        <label for="name">Mobile Number</label>
+        <input type="text" class="form-control" [(ngModel)] = "customerMobile" placeholder="eg:-9123456789">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="print()">Print</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
